@@ -52,35 +52,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void runCode(View view) {
+
         log("\nRunning code");
+        displayProgressBar(true); // Show the progress bar
 
-        // Show the progress bar
-        displayProgressBar(true);
-
-        Runnable runnable = new Runnable() {
-
-            @Override
-            public void run() {
-                Log.d(TAG, "run: starting download");
-                try {
-                    Thread.sleep(4000); // Simulate download time
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-                Message message = new Message();
-                Bundle bundle = new Bundle();
-                bundle.putString(MESSAGE_KEY, "Download Completed");
-                message.setData(bundle);
-
-                mHandler.sendMessage(message);
-
-            }
-        };
-
-        Thread thread = new Thread(runnable);
+        DownloadThread thread = new DownloadThread();
         thread.setName("Download Thread");
         thread.start();
+
     }
 
     private void displayProgressBar(boolean display) {
