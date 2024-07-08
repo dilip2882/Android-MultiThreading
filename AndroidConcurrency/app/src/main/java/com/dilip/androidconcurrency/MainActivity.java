@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -16,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     private ScrollView mScroll;
     private TextView mLog;
     private ProgressBar mProgressBar;
+    private Animation mProgressBarAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,38 +26,50 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-
-        mLog.setText(R.string.lorem_ipsum);
-        displayProgressBar(false);
     }
 
     private void initViews() {
         mScroll = findViewById(R.id.scrollLog);
         mLog = findViewById(R.id.tvLog);
         mProgressBar = findViewById(R.id.progressBar);
+        mProgressBarAnimation = AnimationUtils.loadAnimation(this, R.anim.progress_bar_animation);
     }
 
     public void runCode(View view) {
-        log("\n\nRunning code");
+        log("\nRunning code");
+
+        // Show the progress bar
         displayProgressBar(true);
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "run: running code");
+                Log.d(TAG, "run: starting download");
+                try {
+                    Thread.sleep(4000); // Simulate download time
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                Log.d(TAG, Thread.currentThread().getName());
+                Log.d(TAG, "run: download completed");
+
+                // Hide the progress bar after download completes
                 displayProgressBar(false);
             }
         };
 
-        Handler handler = new Handler();
-        handler.postDelayed(runnable, 4000);
+        Thread thread = new Thread(runnable);
+        thread.setName("Download Thread");
+        thread.start();
     }
 
     private void displayProgressBar(boolean display) {
         if (display) {
             mProgressBar.setVisibility(View.VISIBLE);
+            mProgressBar.startAnimation(mProgressBarAnimation);
         } else {
-            mProgressBar.setVisibility(View.GONE);
+            mProgressBar.clearAnimation();
+            mProgressBar.setVisibility(View.INVISIBLE);
         }
     }
 
