@@ -2,6 +2,7 @@ package com.dilip.androidconcurrency;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -10,20 +11,35 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MyTag";
+    private static final String MESSAGE_KEY = "message_key";
     private ScrollView mScroll;
     private TextView mLog;
     private ProgressBar mProgressBar;
     private Animation mProgressBarAnimation;
+    private Handler mHandler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mHandler = new Handler(getMainLooper()) {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+
+                String data = msg.getData().getString(MESSAGE_KEY);
+
+                Log.d(TAG, "handleMessage: " + data);
+
+            }
+        };
 
         initViews();
     }
@@ -42,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         displayProgressBar(true);
 
         Runnable runnable = new Runnable() {
+
             @Override
             public void run() {
                 Log.d(TAG, "run: starting download");
@@ -50,11 +67,14 @@ public class MainActivity extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                Log.d(TAG, Thread.currentThread().getName());
-                Log.d(TAG, "run: download completed");
 
-                // Hide the progress bar after download completes
-                displayProgressBar(false);
+                Message message = new Message();
+                Bundle bundle = new Bundle();
+                bundle.putString(MESSAGE_KEY, "Download Completed");
+                message.setData(bundle);
+
+                mHandler.sendMessage(message);
+
             }
         };
 
