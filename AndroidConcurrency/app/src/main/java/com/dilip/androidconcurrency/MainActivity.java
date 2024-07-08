@@ -1,6 +1,7 @@
 package com.dilip.androidconcurrency;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         initViews();
 
         mLog.setText(R.string.lorem_ipsum);
+        displayProgressBar(false);
     }
 
     private void initViews() {
@@ -33,15 +35,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void runCode(View view) {
+        log("\n\nRunning code");
+        displayProgressBar(true);
 
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "run: running code");
+                displayProgressBar(false);
+            }
+        };
+
+        Handler handler = new Handler();
+        handler.postDelayed(runnable, 4000);
+    }
+
+    private void displayProgressBar(boolean display) {
+        if (display) {
+            mProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mProgressBar.setVisibility(View.GONE);
         }
-
-        log("Running code");
-
     }
 
     private void log(String message) {
@@ -56,5 +70,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void scrollTextToEnd() {
+        mScroll.post(new Runnable() {
+            @Override
+            public void run() {
+                mScroll.fullScroll(View.FOCUS_DOWN);
+            }
+        });
     }
 }
