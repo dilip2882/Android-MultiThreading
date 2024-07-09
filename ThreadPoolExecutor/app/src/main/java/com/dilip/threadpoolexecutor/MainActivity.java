@@ -1,16 +1,16 @@
-package com.dilip.androidconcurrencywiththreads;
+package com.dilip.threadpoolexecutor;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,48 +19,29 @@ public class MainActivity extends AppCompatActivity {
     private ScrollView mScroll;
     private TextView mLog;
     private ProgressBar mProgressBar;
-    public Handler mHandler;
-
-    DownloadThread mDownloadThread;
+    private ExecutorService mExecutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mHandler = new Handler(getMainLooper()) {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-
-                String data = msg.getData().getString(MESSAGE_KEY);
-
-                Log.d(TAG, "handleMessage: " + data);
-
-            }
-        };
-
-
         initViews();
 
-        mDownloadThread = new DownloadThread(MainActivity.this);
-        mDownloadThread.setName("Download Thread");
-        mDownloadThread.start();
+        mExecutor = Executors.newFixedThreadPool(5);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mExecutor.shutdown();
     }
 
     public void runCode(View v) {
 
-        log("Running code");
-        displayProgressBar(true);
-
-
-        //send message to download handler
-
-
-        for (String song : Playlist.songs) {
-            Message message = Message.obtain();
-            message.obj = song;
-            mDownloadThread.mHandler.sendMessage(message);
-
+        for (int i=0; i<10; i++) {
+            Work work = new Work(i+1);
+            mExecutor.execute(work);
         }
 
     }
