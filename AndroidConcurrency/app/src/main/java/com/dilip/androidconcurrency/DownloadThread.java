@@ -1,27 +1,22 @@
 package com.dilip.androidconcurrency;
 
-import android.util.Log;
+import android.os.Looper;
 
 public class DownloadThread extends Thread {
     private static final String TAG = "MyTag";
+    private final MainActivity mActvity;
+    public DownloadHandler mHandler;
+
+    public DownloadThread(MainActivity activity) {
+        this.mActvity = activity;
+    }
 
     @Override
     public void run() {
-        for (String song : Playlist.songs) {
-            downloadSong(song);
-        }
+
+        Looper.prepare();
+        mHandler = new DownloadHandler(mActvity);
+        Looper.loop();
     }
 
-    void downloadSong(String songName) {
-        Log.d(TAG, "run: starting download");
-        try {
-            Thread.sleep(4000); // Simulate download time
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        Log.d(TAG, "downloadSong: " + songName + " Downloaded...");
-
-
-    }
 }

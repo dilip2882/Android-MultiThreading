@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private Animation mProgressBarAnimation;
     private Handler mHandler;
+    DownloadThread mDownloadThread;
 
 
     @Override
@@ -42,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
         };
 
         initViews();
+
+        mDownloadThread = new DownloadThread(MainActivity.this);
+        mDownloadThread.setName("Download Thread");
+        mDownloadThread.start();
     }
 
     private void initViews() {
@@ -56,13 +61,16 @@ public class MainActivity extends AppCompatActivity {
         log("\nRunning code");
         displayProgressBar(true); // Show the progress bar
 
-        DownloadThread thread = new DownloadThread();
-        thread.setName("Download Thread");
-        thread.start();
+        // send message or runnable to download handler
 
+        for (String song : Playlist.songs) {
+            Message message = Message.obtain();
+            message.obj = song;
+            mDownloadThread.mHandler.sendMessage(message);
+        }
     }
 
-    private void displayProgressBar(boolean display) {
+    public void displayProgressBar(boolean display) {
         if (display) {
             mProgressBar.setVisibility(View.VISIBLE);
             mProgressBar.startAnimation(mProgressBarAnimation);
@@ -72,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void log(String message) {
+    public void log(String message) {
         Log.i(TAG, message);
         mLog.append(message + "\n");
         scrollTextToEnd();
