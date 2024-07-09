@@ -114,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         @Override
         public String loadInBackground() {
 
+            Thread.currentThread().setName("MyDownloadThread");
+
             String data = mArgs.getString(DATA_KEY);
 
             Log.d(TAG, "loadInBackground: URL: " + data);
