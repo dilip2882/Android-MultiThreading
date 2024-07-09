@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     private Animation mProgressBarAnimation;
     private Handler mHandler;
     DownloadThread mDownloadThread;
+    MyTask mTask;
+    private boolean mTaskRunning;
 
 
     @Override
@@ -37,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(@NonNull Message msg) {
 
                 String data = msg.getData().getString(MESSAGE_KEY);
-
                 Log.d(TAG, "handleMessage: " + data);
+
 
             }
         };
@@ -70,11 +72,14 @@ public class MainActivity extends AppCompatActivity {
             mDownloadThread.mHandler.sendMessage(message);
         }
 
-        MyTask myTask = new MyTask();
-        myTask.execute("Red","Green","Blue","Yellow");
-
-        MyTask myTask2 = new MyTask();
-        myTask2.execute("Black","White");
+        if (mTaskRunning && mTask != null) {
+            mTask.cancel(true);
+            mTaskRunning = false;
+        } else {
+            mTask = new MyTask();
+            mTask.execute("Red", "Green", "Blue", "Yellow");
+            mTaskRunning = true;
+        }
     }
 
     public void displayProgressBar(boolean display) {
@@ -107,12 +112,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    class MyTask extends AsyncTask<String,String,String> {
+    class MyTask extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... strings) {
 
-            for (String value: strings) {
+            for (String value : strings) {
+
+                if (isCancelled()) {
+                    publishProgress("task is cancelled");
+                    break;
+                }
+
                 Log.d(TAG, "doInBackground: " + value);
                 publishProgress(value);
 
@@ -134,7 +145,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             log(s);
+        }
 
+        @Override
+        protected void onCancelled() {   // this will not run
+            log("task has been cancelled");
+        }
+
+        @Override
+        protected void onCancelled(String s) {
+            log("cancelled with return data " + s);
         }
     }
 }
