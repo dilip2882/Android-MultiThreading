@@ -1,5 +1,6 @@
 package com.dilip.androidconcurrency;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -68,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
             message.obj = song;
             mDownloadThread.mHandler.sendMessage(message);
         }
+
+        MyTask myTask = new MyTask();
+        myTask.execute("Red","Green","Blue","Yellow");
+
+        MyTask myTask2 = new MyTask();
+        myTask2.execute("Black","White");
     }
 
     public void displayProgressBar(boolean display) {
@@ -98,5 +105,36 @@ public class MainActivity extends AppCompatActivity {
                 mScroll.fullScroll(View.FOCUS_DOWN);
             }
         });
+    }
+
+    class MyTask extends AsyncTask<String,String,String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            for (String value: strings) {
+                Log.d(TAG, "doInBackground: " + value);
+                publishProgress(value);
+
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+            return "onPostExecute: Download Completed";
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            log(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            log(s);
+
+        }
     }
 }

@@ -12,8 +12,8 @@ public class DownloadHandler extends Handler {
     private static final String TAG = "MyTag";
     private final MainActivity mActivity;
 
-    public DownloadHandler(MainActivity actvity) {
-        this.mActivity = actvity;
+    public DownloadHandler(MainActivity activity) {
+        this.mActivity = activity;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class DownloadHandler extends Handler {
 //            }
 //        });
 
-        Log.d(TAG, "downloadSong: " + songName + " Downloaded...");
+        Log.d(TAG, "downloadSong: "+songName+" Downloaded...");
 
     }
 }
