@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Bundle bundle = new Bundle();
         bundle.putString(DATA_KEY, "some url that returns some data");
 
-        getSupportLoaderManager().initLoader(1000, bundle, this).forceLoad();
+        getSupportLoaderManager().restartLoader(1000, bundle, this).forceLoad();
 
     }
 
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(@NonNull Loader<String> loader, String data) {
-
+        log(data);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             for (String song : mSongsList) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -130,7 +130,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             Log.d(TAG, "loadInBackground: Thread Terminated");
 
-            return null;
+            return "result from loader";
+        }
+
+        @Override
+        public void deliverResult(@Nullable String data) {
+            data += ": modified";
+
+            super.deliverResult(data);
         }
     }
 
